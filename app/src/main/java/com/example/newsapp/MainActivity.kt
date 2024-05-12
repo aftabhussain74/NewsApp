@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -31,17 +36,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.example.MainViewModelFactory
 import com.example.newsapp.ui.theme.NewsAppTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -80,12 +86,8 @@ fun HomeScreen(mainViewModel: MainViewModel) {
                 for(i in 0..<mainViewModel.listItemsHomeScreen.value.size){
                     item {
                         Item_single(
-                            items = Items(
-                                mainViewModel.listItemsHomeScreen.value[i].img,
-                                mainViewModel.listItemsHomeScreen.value[i].headline,
-                                mainViewModel.listItemsHomeScreen.value[i].source,
-                                mainViewModel.listItemsHomeScreen.value[i].date,
-                            )
+                            mainViewModel,
+                            items = mainViewModel.listItemsHomeScreen.value[i]
                         )
                     }
                 }
@@ -96,7 +98,9 @@ fun HomeScreen(mainViewModel: MainViewModel) {
 
 
 @Composable
-fun Item_single(items:Items, modifier:Modifier = Modifier){
+fun Item_single(mainViewModel: MainViewModel, items:Items, modifier:Modifier = Modifier){
+
+    val coroutineScope = rememberCoroutineScope()
 
     Card (
         colors = CardDefaults.cardColors(
@@ -113,8 +117,28 @@ fun Item_single(items:Items, modifier:Modifier = Modifier){
             }
             Column(Modifier.weight(0.3F)){
                 Image(painter = painterResource(id = items.img),
-                    contentDescription = "Heart",
+                    contentDescription = "News Image",
                     modifier.padding(end=20.dp))
+                Row {
+                    if (mainViewModel.selectedTabForNavigationBar.intValue == 0){
+                        Image(imageVector = if (items.bookmark.intValue == 0) Icons.Filled.FavoriteBorder else Icons.Filled.Favorite,
+                            contentDescription = "Save Button",
+                            modifier.clickable {
+                                items.bookmark.intValue = 1 - items.bookmark.intValue
+
+                                coroutineScope.launch {
+                                    if(items.bookmark.intValue == 1) {
+                                        mainViewModel.addToDatabase(items)
+                                    }
+                                    else{
+                                        mainViewModel.deleteFromDatabase(items)
+                                    }
+                                }
+
+                            })
+                    }
+                    Image(imageVector = Icons.Filled.Share, contentDescription = "Share Button")
+                }
             }
         }
         Divider(
@@ -160,7 +184,15 @@ fun BottomNavigationBar(mainViewModel: MainViewModel, selectedTab: Int, onTabSel
                 },
                 label = { Text(mainViewModel.bottomNavigationCategories[i]) },
                 selected = selectedTab == i,
-                onClick = { onTabSelected(i) }
+                onClick = {
+                    onTabSelected(i)
+                    if(i == 0){
+                        mainViewModel.homeButtonClicked()
+                    }
+                    else if(i == 1){
+                        mainViewModel.savedButtonClicked()
+                    }
+                }
             )
         }
     }

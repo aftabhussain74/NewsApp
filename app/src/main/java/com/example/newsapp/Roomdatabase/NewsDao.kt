@@ -1,7 +1,6 @@
 package com.example.newsapp.Roomdatabase
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -10,14 +9,14 @@ import androidx.room.Query
 interface NewsDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertData(orientation: NewsEntity)
-
-    @Delete
-    suspend fun deleteContact(weather: NewsEntity)
+    suspend fun insertData(newsItem: NewsEntity)
 
     @Query("DELETE FROM news")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM news")
+    @Query("SELECT * FROM news ORDER BY id DESC")
     suspend fun getAll(): List<NewsEntity>
+
+    @Query("DELETE FROM news where headline==:headline")
+    suspend fun delete(headline:String)
 }

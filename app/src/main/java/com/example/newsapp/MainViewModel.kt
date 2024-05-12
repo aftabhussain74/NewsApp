@@ -9,7 +9,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.newsapp.Roomdatabase.NewsDatabase
+import com.example.newsapp.Roomdatabase.NewsEntity
+import kotlinx.coroutines.launch
 
 class MainViewModel(context: Context): ViewModel() {
 
@@ -24,8 +27,9 @@ class MainViewModel(context: Context): ViewModel() {
     private val tab1:List<Items> = listOf()
     private val tab2:List<Items> = listOf()
     private val tab3:List<Items> = listOf()
+    private val saved:MutableList<Items> = mutableListOf()
 
-    val database = NewsDatabase.getDatabase(context)
+    private val database = NewsDatabase.getDatabase(context)
 
     val listItemsHomeScreen: MutableState<List<Items>> = mutableStateOf<List<Items>>(tab0)
 
@@ -37,4 +41,36 @@ class MainViewModel(context: Context): ViewModel() {
             3 -> this.listItemsHomeScreen.value = tab3
         }
     }
+
+    suspend fun addToDatabase(item: Items){
+        database.newsDao().insertData(NewsEntity(0, item.img, item.headline, item.source, item.date))
+    }
+
+    suspend fun deleteFromDatabase(item: Items){
+        database.newsDao().delete(item.headline)
+    }
+
+    fun homeButtonClicked(){
+        this.listItemsHomeScreen.value = tab0
+        this.selectedTabForTabRow.intValue = 0
+    }
+
+    fun savedButtonClicked(){
+        viewModelScope.launch {
+            val newsEntities: List<NewsEntity> = database.newsDao().getAll()
+            saved.clear()
+            for(i in newsEntities.indices){
+                saved.add(
+                    Items(
+                    newsEntities[i].img,
+                    newsEntities[i].headline,
+                    newsEntities[i].source,
+                    newsEntities[i].date
+                    )
+                )
+            }
+            listItemsHomeScreen.value = saved
+        }
+    }
+
 }
