@@ -77,4 +77,6 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+
+    implementation("com.google.android.gms:play-services-location:21.2.0")
 }

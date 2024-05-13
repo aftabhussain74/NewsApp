@@ -24,6 +24,9 @@ class MainViewModel(context: Context) : ViewModel() {
     val bottomNavigationImages =
         listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Settings)
 
+    var city:String = ""
+    var country = ""
+
     //    private val tab0:List<Items> = listOf()
 //    private val tab1:List<Items> = listOf()
 //    private val tab2:List<Items> = listOf()

@@ -1,7 +1,14 @@
 package com.example.newsapp
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -46,16 +53,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.MainViewModelFactory
 import com.example.newsapp.ui.theme.NewsAppTheme
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
+    private val PERMISSION_REQUEST_LOCATION = 1
+    lateinit var mainViewModel:MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val mainViewModel = ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
+        mainViewModel = ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
         setContent {
             NewsAppTheme {
                 // A surface container using the 'background' color from the theme
@@ -67,7 +80,58 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        val pm = packageManager
+        if (pm.checkPermission(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                packageName
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            getLocation(mainViewModel)
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSION_REQUEST_LOCATION
+            )
+        }
     }
+
+    private fun getLocation(mainViewModel: MainViewModel) {
+        val pm = packageManager
+        if (pm.checkPermission(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                packageName
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            val fusedLocation = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocation.lastLocation.addOnSuccessListener { location: Location? ->
+                val geocoder: Geocoder = Geocoder(this, Locale.getDefault())
+                val addresses: MutableList<Address>? = location?.let { geocoder.getFromLocation(it.latitude, location.longitude, 1)}
+                mainViewModel.city = addresses?.get(0)?.locality!!
+                mainViewModel.country = addresses[0].countryName!!
+
+            }
+        }
+        else {
+            Log.d("Location", "Permission Denied")
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_LOCATION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLocation(mainViewModel)
+            } else {
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 }
 
 @Composable
