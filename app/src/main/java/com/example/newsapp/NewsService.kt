@@ -10,7 +10,7 @@ interface NewsService {
         @Query("q") query: String,
         @Query("from") fromDate: String,
         @Query("sortBy") sortBy: String,
-        @Query("language") lang: String="en",
+        @Query("language") lang: String,
         @Query("apiKey") apiKey: String
     ): Call<NewsResponse>
 }

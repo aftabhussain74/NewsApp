@@ -29,6 +29,8 @@ class MainViewModel(context: Context) : ViewModel() {
     var city:String = ""
     var country = ""
 
+    var lang = "en"
+
     val categories = mutableListOf("New Delhi", "International", "Sports", "Technology")
 
     public val tab0:MutableList<Items> = mutableListOf()
@@ -92,14 +94,14 @@ class MainViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun getNews(query: String, fromDate: String, sortBy: String, apiKey: String): Call<NewsResponse> {
+    fun getNews(query: String, fromDate: String, sortBy: String, lang:String, apiKey: String): Call<NewsResponse> {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://newsapi.org/v2/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         val service = retrofit.create(NewsService::class.java)
-        return service.getNews(query, fromDate, sortBy, "en", apiKey)
+        return service.getNews(query, fromDate, sortBy, lang, apiKey)
     }
 
 }

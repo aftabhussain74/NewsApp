@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
     private val apiKey = "5ab5c1b91b1d4b59802c9bddb33aab02"
 
     private fun fetchNews(i:Int, query_:String) {
-        val call: Call<NewsResponse> = mainViewModel.getNews(query_, "2024-05-12", "popularity", apiKey)
+        val call: Call<NewsResponse> = mainViewModel.getNews(query_, "2024-05-12", "popularity", mainViewModel.lang, apiKey)
 
         call.enqueue(object : Callback<NewsResponse> {
             override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
@@ -102,6 +102,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainViewModel = ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
+
+        val language: String? = intent.getStringExtra("lang")
+        if(language != null){
+            when(language){
+                "English"-> mainViewModel.lang = "en"
+                "Spanish"->mainViewModel.lang = "sp"
+                "French"->mainViewModel.lang = "fr"
+                "Russian"->mainViewModel.lang = "ru"
+            }
+        }
+
         val pm = packageManager
         if (pm.checkPermission(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -116,6 +127,7 @@ class MainActivity : ComponentActivity() {
                 PERMISSION_REQUEST_LOCATION
             )
         }
+
 
         setContent {
             NewsAppTheme {
@@ -146,6 +158,11 @@ class MainActivity : ComponentActivity() {
                 mainViewModel.country = addresses[0].countryName!!
 
                 mainViewModel.categories[0] = mainViewModel.city
+                mainViewModel.tab0.clear()
+                mainViewModel.tab1.clear()
+                mainViewModel.tab2.clear()
+                mainViewModel.tab3.clear()
+
                 fetchNews(0, mainViewModel.city)
                 fetchNews(1, "International")
                 fetchNews(2, "Sports")
@@ -286,6 +303,7 @@ fun TopBar(){
 
 @Composable
 fun BottomNavigationBar(mainViewModel: MainViewModel, selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    val context = LocalContext.current
     NavigationBar(
         contentColor = Color.Black,
         modifier = Modifier.fillMaxWidth()
@@ -307,6 +325,10 @@ fun BottomNavigationBar(mainViewModel: MainViewModel, selectedTab: Int, onTabSel
                     }
                     else if(i == 1){
                         mainViewModel.savedButtonClicked()
+                    }
+                    else if (i == 2){
+                        val intent = Intent(context, SettingsActivity::class.java)
+                        context.startActivity(intent)
                     }
                 }
             )
