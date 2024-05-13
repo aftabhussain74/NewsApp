@@ -1,6 +1,7 @@
 package com.example.newsapp
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,7 +37,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.example.newsapp.ui.theme.NewsAppTheme
+import java.io.InputStream
+import java.net.URL
+
 
 class NewsArticlesActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,10 +146,11 @@ fun ArticleScreen(
                     textAlign = TextAlign.Center,
                 )
                 Image(
-                    painter = painterResource(id = image),
+                    painter = painterResource(id = R.drawable.newz),
                     contentDescription = "Heart",
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Text(text = content, modifier = Modifier.padding(8.dp))
             }
         }

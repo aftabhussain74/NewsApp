@@ -81,10 +81,10 @@ class MainActivity : ComponentActivity() {
                         for(news in newsResponse.articles){
                             val sourceName = news.source?.name ?: "Unknown source"
                             when (i) {
-                                0 -> mainViewModel.tab0.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
-                                1 -> mainViewModel.tab1.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
-                                2 -> mainViewModel.tab2.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
-                                3 -> mainViewModel.tab3.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
+                                0 -> mainViewModel.tab0.add(Items(R.drawable.news, news.title, sourceName, news.publishedAt!!, news.content))
+                                1 -> mainViewModel.tab1.add(Items(R.drawable.news, news.title, sourceName, news.publishedAt!!, news.content))
+                                2 -> mainViewModel.tab2.add(Items(R.drawable.news, news.title, sourceName, news.publishedAt!!, news.content))
+                                3 -> mainViewModel.tab3.add(Items(R.drawable.news, news.title, sourceName, news.publishedAt!!, news.content))
                             }
                         }
                     }
@@ -254,7 +254,6 @@ fun Item_single(mainViewModel: MainViewModel, item:Items, modifier:Modifier = Mo
 
                             })
                     }
-                    Image(imageVector = Icons.Filled.Share, contentDescription = "Share Button")
                 }
             }
         }
