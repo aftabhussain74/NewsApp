@@ -1,4 +1,4 @@
-package com.example.newsapp.Roomdatabase
+package com.example.newsapp.roomdatabase
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -10,5 +10,6 @@ data class NewsEntity(
     val img: Int,
     val headline: String,
     val source: String,
-    val date: String
+    val date: String,
+    val content: String
 )

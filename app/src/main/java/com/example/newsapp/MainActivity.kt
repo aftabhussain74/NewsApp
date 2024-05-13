@@ -1,5 +1,6 @@
 package com.example.newsapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -87,7 +89,7 @@ fun HomeScreen(mainViewModel: MainViewModel) {
                     item {
                         Item_single(
                             mainViewModel,
-                            items = mainViewModel.listItemsHomeScreen.value[i]
+                            item = mainViewModel.listItemsHomeScreen.value[i]
                         )
                     }
                 }
@@ -98,9 +100,10 @@ fun HomeScreen(mainViewModel: MainViewModel) {
 
 
 @Composable
-fun Item_single(mainViewModel: MainViewModel, items:Items, modifier:Modifier = Modifier){
+fun Item_single(mainViewModel: MainViewModel, item:Items, modifier:Modifier = Modifier){
 
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Card (
         colors = CardDefaults.cardColors(
@@ -108,30 +111,39 @@ fun Item_single(mainViewModel: MainViewModel, items:Items, modifier:Modifier = M
         ),
         modifier = Modifier
             .background(color = Color.White)
+            .clickable {
+                val intent = Intent(context, NewsArticlesActivity::class.java)
+                intent.putExtra("headline", item.headline)
+                intent.putExtra("image", item.img)
+                intent.putExtra("content", item.content)
+                intent.putExtra("bookmark", item.bookmark.intValue)
+                context.startActivity(intent)
+            }
+
     ){
         Row {
             Column(Modifier.weight(0.7F)) {
-                Text(items.source, Modifier.padding(start = 10.dp), color=Color.DarkGray, fontSize = 14.sp)
-                Text(items.headline, Modifier.padding(start = 10.dp, top=6.dp, end=8.dp), fontSize = 20.sp, color=Color.Black)
-                Text(items.date, Modifier.padding(start = 10.dp, top=12.dp), color=Color.Gray, fontSize = 10.sp)
+                Text(item.source, Modifier.padding(start = 10.dp), color=Color.DarkGray, fontSize = 14.sp)
+                Text(item.headline, Modifier.padding(start = 10.dp, top=6.dp, end=8.dp), fontSize = 20.sp, color=Color.Black)
+                Text(item.date, Modifier.padding(start = 10.dp, top=12.dp), color=Color.Gray, fontSize = 10.sp)
             }
             Column(Modifier.weight(0.3F)){
-                Image(painter = painterResource(id = items.img),
-                    contentDescription = "News Image",
-                    modifier.padding(end=20.dp))
+                Image(painter = painterResource(id = item.img),
+                      contentDescription = "News Image",
+                      modifier.padding(end=20.dp))
                 Row {
                     if (mainViewModel.selectedTabForNavigationBar.intValue == 0){
-                        Image(imageVector = if (items.bookmark.intValue == 0) Icons.Filled.FavoriteBorder else Icons.Filled.Favorite,
-                            contentDescription = "Save Button",
-                            modifier.clickable {
-                                items.bookmark.intValue = 1 - items.bookmark.intValue
+                        Image(imageVector = if (item.bookmark.intValue == 0) Icons.Filled.FavoriteBorder else Icons.Filled.Favorite,
+                              contentDescription = "Save Button",
+                              modifier.clickable {
+                                item.bookmark.intValue = 1 - item.bookmark.intValue
 
                                 coroutineScope.launch {
-                                    if(items.bookmark.intValue == 1) {
-                                        mainViewModel.addToDatabase(items)
+                                    if(item.bookmark.intValue == 1) {
+                                        mainViewModel.addToDatabase(item)
                                     }
                                     else{
-                                        mainViewModel.deleteFromDatabase(items)
+                                        mainViewModel.deleteFromDatabase(item)
                                     }
                                 }
 
