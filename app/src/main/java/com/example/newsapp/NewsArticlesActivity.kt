@@ -44,38 +44,8 @@ class NewsArticlesActivity : ComponentActivity() {
 
         val headline = intent.getStringExtra("headline")
         val image = intent.getIntExtra("image", 0)
-//        val content = intent.getStringExtra("content")
+        val content = intent.getStringExtra("content")
         val bookmark = intent.getIntExtra("bookmark", 0)
-
-        val content =
-            "If you are a android developer or just a casual guy developing some android apps. I am sure you had come in a situation where you have to share some data from one activity to another. (Hope you know what is activity :-) ).\n" +
-                    "\n" +
-                    "I will be writing code in java, if you want code or example in kotlin use some online converter and paste the java code and you will get kotlin code. Otherwise comment or mail me I will write another article for kotlin also.\n" +
-                    "\n" +
-                    "There are many different ways to pass the data from one activity to another activity.\n" +
-                    "\n" +
-                    "Intents/Bundles (custom model also)\n" +
-                    "Shared Preferences\n" +
-                    "Static classes\n" +
-                    "Database\n" +
-                    "Shared Preferences and database are valid when we need to pass data and at the same time make this information persistent. This is the case of configuration parameter for example where we have to persist this information to not ask again it. We will cover this topic in another post, by now we are more interested on sharing data between activities without making them persistent. So we are in static classes and Intents.\n" +
-                    "\n" +
-                    "Static class\n" +
-                    "This is the easiest way to achieve our goal. Exploiting the Android feature that an app runs in a single process we can use a static class to exchange data between activities. In this case we can create several static method to hold the data we want to share.\n" +
-                    "Otherwise, we can use the singleton pattern that ensures we have only one instance of this class in all our JVM. In this case we create several method to hold the data.\n" +
-                    "\n" +
-                    "Intents\n" +
-                    "This is the reason you are here, this is most versatile and used way. I can even say one of the most powerful when we don’t have to save the data and just send it.\n" +
-                    "\n" +
-                    "There are 3 way we can send data using intents.\n" +
-                    "\n" +
-                    "> Direct :- Put our data into intents directly\n" +
-                    "\n" +
-                    "> Bundle :- create a bundle and set the data here\n" +
-                    "\n" +
-                    "> Parcelable :- It is a way of “serializing” our object.\n" +
-                    "\n" +
-                    "To see how to use them let take a example we have two activities with name firstActivity and secondActivity."
 
         setContent {
             NewsAppTheme {

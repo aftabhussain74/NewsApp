@@ -70,8 +70,8 @@ class MainActivity : ComponentActivity() {
     lateinit var mainViewModel:MainViewModel
     private val apiKey = "5ab5c1b91b1d4b59802c9bddb33aab02"
 
-    private fun fetchNews() {
-        val call: Call<NewsResponse> = mainViewModel.getNews(mainViewModel.city, "2024-05-12", "popularity", apiKey)
+    private fun fetchNews(i:Int, query_:String) {
+        val call: Call<NewsResponse> = mainViewModel.getNews(query_, "2024-05-12", "popularity", apiKey)
 
         call.enqueue(object : Callback<NewsResponse> {
             override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
@@ -80,7 +80,12 @@ class MainActivity : ComponentActivity() {
                     if(newsResponse != null){
                         for(news in newsResponse.articles){
                             val sourceName = news.source?.name ?: "Unknown source"
-                            mainViewModel.tab0.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
+                            when (i) {
+                                0 -> mainViewModel.tab0.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
+                                1 -> mainViewModel.tab1.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
+                                2 -> mainViewModel.tab2.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
+                                3 -> mainViewModel.tab3.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
+                            }
                         }
                     }
                 } else {
@@ -141,7 +146,11 @@ class MainActivity : ComponentActivity() {
                 mainViewModel.country = addresses[0].countryName!!
 
                 mainViewModel.categories[0] = mainViewModel.city
-                fetchNews()
+                fetchNews(0, mainViewModel.city)
+                fetchNews(1, "International")
+                fetchNews(2, "Sports")
+                fetchNews(3, "Technology")
+
             }
         }
         else {
