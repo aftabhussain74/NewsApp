@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
 
     private val PERMISSION_REQUEST_LOCATION = 1
     lateinit var mainViewModel:MainViewModel
-    private val apiKey = "5ab5c1b91b1d4b59802c9bddb33aab02"
+    private val apiKey = "69936355f7f043cba7a7e4c141740715"
 
     private fun fetchNews(i:Int, query_:String) {
         val call: Call<NewsResponse> = mainViewModel.getNews(query_, "2024-05-12", "popularity", mainViewModel.lang, apiKey)
@@ -99,19 +99,32 @@ class MainActivity : ComponentActivity() {
         })
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mainViewModel = ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
-
+    override fun onResume() {
+        super.onResume()
         val language: String? = intent.getStringExtra("lang")
         if(language != null){
             when(language){
                 "English"-> mainViewModel.lang = "en"
-                "Spanish"->mainViewModel.lang = "sp"
+                "Spanish"->mainViewModel.lang = "es"
                 "French"->mainViewModel.lang = "fr"
                 "Russian"->mainViewModel.lang = "ru"
             }
         }
+        Log.d("CHEESE", language.toString())
+        mainViewModel.tab0.clear()
+        mainViewModel.tab1.clear()
+        mainViewModel.tab2.clear()
+        mainViewModel.tab3.clear()
+        fetchNews(0, mainViewModel.city)
+        fetchNews(1, "International")
+        fetchNews(2, "Sports")
+        fetchNews(3, "Technology")
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mainViewModel = ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
 
         val pm = packageManager
         if (pm.checkPermission(
@@ -204,7 +217,10 @@ fun HomeScreen(mainViewModel: MainViewModel) {
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ){
+            if(mainViewModel.selectedTabForNavigationBar.intValue == 0 || mainViewModel.selectedTabForNavigationBar.intValue == 2){
+
             HorizontalScrollableTabRow(mainViewModel, state = mainViewModel.selectedTabForTabRow.intValue , onStateSelected = { tab -> mainViewModel.selectedTabForTabRow.intValue = tab})
+            }
 
             LazyColumn() {
                 for(i in 0..<mainViewModel.listItemsHomeScreen.value.size){

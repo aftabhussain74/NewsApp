@@ -94,8 +94,7 @@ fun selectLanguage() {
         Button(
             onClick = {
                 val intent_settings = Intent(context, MainActivity::class.java)
-                intent_settings.flags =
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
                 intent_settings.putExtra("lang", selectedOption)
                 context.startActivity(intent_settings)
 
