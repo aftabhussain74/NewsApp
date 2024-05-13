@@ -13,13 +13,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.newsapp.roomdatabase.NewsDatabase
 import com.example.newsapp.roomdatabase.NewsEntity
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainViewModel(context: Context) : ViewModel() {
 
     val selectedTabForNavigationBar = mutableIntStateOf(0)
     val selectedTabForTabRow = mutableIntStateOf(0)
 
-    val categories = listOf("Delhi", "India", "Sports", "Technology")
     val bottomNavigationCategories = listOf("Home", "Saved", "Settings")
     val bottomNavigationImages =
         listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Settings)
@@ -27,69 +29,13 @@ class MainViewModel(context: Context) : ViewModel() {
     var city:String = ""
     var country = ""
 
-    //    private val tab0:List<Items> = listOf()
-//    private val tab1:List<Items> = listOf()
-//    private val tab2:List<Items> = listOf()
-//    private val tab3:List<Items> = listOf()
-    private val tab0 = listOf(
-        Items(
-            R.drawable.ic_launcher_background,
-            "Brazil judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-        Items(
-            R.drawable.ic_launcher_background,
-            "India judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-    )
+    val categories = mutableListOf("New Delhi", "International", "Sports", "Technology")
 
-    private val tab1 = listOf(
-        Items(
-            R.drawable.ic_launcher_background,
-            "Russia judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-        Items(
-            R.drawable.ic_launcher_background,
-            "France judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-    )
+    public val tab0:MutableList<Items> = mutableListOf()
+    public val tab1:MutableList<Items> = mutableListOf()
+    public val tab2:MutableList<Items> = mutableListOf()
+    public val tab3:MutableList<Items> = mutableListOf()
 
-    private val tab2 = listOf(
-        Items(
-            R.drawable.ic_launcher_background,
-            "Germany judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-        Items(
-            R.drawable.ic_launcher_background,
-            "Austria judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-    )
-
-    private val tab3 = listOf(
-        Items(
-            R.drawable.ic_launcher_background,
-            "Delhi judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-        Items(
-            R.drawable.ic_launcher_background,
-            "Iceland judge orders probe of Elon Musk over censorship charge",
-            "Tech Xplore",
-            "2024-04-08T09:10:04Z"
-        ),
-    )
     private val saved: MutableList<Items> = mutableListOf()
 
     private val database = NewsDatabase.getDatabase(context)
@@ -144,6 +90,16 @@ class MainViewModel(context: Context) : ViewModel() {
             }
             listItemsHomeScreen.value = saved
         }
+    }
+
+    fun getNews(query: String, fromDate: String, sortBy: String, apiKey: String): Call<NewsResponse> {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://newsapi.org/v2/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(NewsService::class.java)
+        return service.getNews(query, fromDate, sortBy, "en", apiKey)
     }
 
 }

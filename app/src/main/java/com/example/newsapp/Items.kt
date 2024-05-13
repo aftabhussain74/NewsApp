@@ -9,5 +9,5 @@ data class Items(val img: Int,
                  val headline: String,
                  val source: String,
                  val date: String,
-                 val content: String = "COntent...",
+                 val content: String = "Content...",
                  var bookmark:MutableIntState = mutableIntStateOf(0))

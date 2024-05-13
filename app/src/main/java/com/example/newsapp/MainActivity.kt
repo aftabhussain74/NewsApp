@@ -59,27 +59,44 @@ import com.example.MainViewModelFactory
 import com.example.newsapp.ui.theme.NewsAppTheme
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import retrofit2.Call
 import java.util.Locale
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
 
     private val PERMISSION_REQUEST_LOCATION = 1
     lateinit var mainViewModel:MainViewModel
+    private val apiKey = "5ab5c1b91b1d4b59802c9bddb33aab02"
+
+    private fun fetchNews() {
+        val call: Call<NewsResponse> = mainViewModel.getNews(mainViewModel.city, "2024-05-12", "popularity", apiKey)
+
+        call.enqueue(object : Callback<NewsResponse> {
+            override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
+                if (response.isSuccessful) {
+                    val newsResponse: NewsResponse? = response.body()
+                    if(newsResponse != null){
+                        for(news in newsResponse.articles){
+                            val sourceName = news.source?.name ?: "Unknown source"
+                            mainViewModel.tab0.add(Items(R.drawable.ic_launcher_background, news.title, sourceName, news.publishedAt!!, news.content))
+                        }
+                    }
+                } else {
+                    Log.d("API", "API response unsuccessful")
+                }
+            }
+
+            override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
+                Log.d("API", "API Failure")
+            }
+        })
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainViewModel = ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
-        setContent {
-            NewsAppTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    HomeScreen(mainViewModel)
-                }
-            }
-        }
         val pm = packageManager
         if (pm.checkPermission(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -94,6 +111,19 @@ class MainActivity : ComponentActivity() {
                 PERMISSION_REQUEST_LOCATION
             )
         }
+
+        setContent {
+            NewsAppTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    HomeScreen(mainViewModel)
+                }
+            }
+        }
+
     }
 
     private fun getLocation(mainViewModel: MainViewModel) {
@@ -110,6 +140,8 @@ class MainActivity : ComponentActivity() {
                 mainViewModel.city = addresses?.get(0)?.locality!!
                 mainViewModel.country = addresses[0].countryName!!
 
+                mainViewModel.categories[0] = mainViewModel.city
+                fetchNews()
             }
         }
         else {
